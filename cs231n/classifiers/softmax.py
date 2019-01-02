@@ -91,15 +91,20 @@ def softmax_loss_vectorized(W, X, y, reg):
   correct_scores = scores[list(range(y.shape[0])),y]
   exp_scores_all = np.exp(scores)
   exp_correct_scores = np.exp(correct_scores)
-  prob_ratio = exp_correct_scores/np.sum(exp_scores_all,axis=1)
+  exp_scores_sum = np.sum(exp_scores_all,axis=1)
+  prob_ratio = exp_correct_scores/exp_scores_sum
   log_ratio = (-1)*np.log(prob_ratio)
   # print(log_ratio.shape)
   # print(np.sum(log_ratio,axis=0)
   loss = np.sum(log_ratio,axis=0) * (1/num_samples) + reg * np.sum(W*W)
 
   # gradient
-  
+  a = np.divide(exp_scores_all,exp_scores_sum.reshape(num_samples,1))
+  a[list(range(num_samples)),y] = - (exp_scores_sum - exp_correct_scores) / exp_scores_sum
 
+  dW = X.T.dot(a)
+  dW /= num_samples
+  dW += 2 * reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
